@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+
+require('dotenv-flow').config({
+  path: require("path").resolve(__dirname, "..")
+})
+
+require('@oclif/command').run()
+.then(require('@oclif/command/flush'))
+.catch(require('@oclif/errors/handle'))

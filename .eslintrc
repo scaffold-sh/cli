@@ -1,0 +1,25 @@
+{
+  "extends": [
+    "oclif",
+    "oclif-typescript"
+  ],
+
+  "rules": {
+    "quotes": ["error", "double"],
+    "valid-jsdoc": ["error", {
+      "requireParamType": false,
+      "requireReturnType": false
+    }],
+    "unicorn/filename-case": ["warning", {
+      "cases": {
+        "camelCase": true,
+        "pascalCase": true
+      }
+    }],
+    "indent": ["error", 2, {
+      "SwitchCase": 1
+    }],
+    "object-curly-spacing": ["error", "always"],
+    "@typescript-eslint/interface-name-prefix": ["error", "always"]
+  }
+}

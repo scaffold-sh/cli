@@ -1,0 +1,128 @@
+{
+  "name": "@scaffold.sh/cli",
+  "description": "The CLI for scaffold.sh",
+  "version": "0.0.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "license": "MIT",
+  "author": {
+    "name": "Scaffold",
+    "email": "support@scaffold.sh",
+    "url": "https://scaffold.sh"
+  },
+  "homepage": "https://scaffold.sh/docs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scaffold-sh/cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/scaffold-sh/cli/issues"
+  },
+  "keywords": [
+    "scaffold",
+    "cli",
+    "aws",
+    "oclif"
+  ],
+  "scripts": {
+    "build": "rm -rf lib && tsc -b",
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "eslint . --ext .ts --config .eslintrc",
+    "prepack": "npm run build && oclif-dev manifest && oclif-dev readme",
+    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif-dev readme && git add README.md",
+    "release": "npm run build && np",
+    "postinstall": "node lib/installTerraform"
+  },
+  "bin": {
+    "scaffold": "./bin/run"
+  },
+  "files": [
+    "/assets",
+    "/bin/run",
+    "/bin/run.cmd",
+    "/lib",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json",
+    "/.env"
+  ],
+  "engines": {
+    "node": ">=12.16.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@oclif/command": "1.8.0",
+    "@oclif/config": "1.17.0",
+    "@oclif/plugin-help": "3.2.0",
+    "aws-get-credentials": "1.0.0",
+    "aws-regions": "2.2.0",
+    "aws-sdk": "2.742.0",
+    "bent": "7.3.10",
+    "bson-objectid": "1.3.1",
+    "chalk": "4.1.0",
+    "cli-ux": "5.4.10",
+    "command-exists": "1.2.9",
+    "dotenv-flow": "3.2.0",
+    "execa": "4.0.3",
+    "find-parent-dir": "0.3.0",
+    "follow-redirects": "1.13.0",
+    "fs-extra": "9.0.1",
+    "glob": "7.1.6",
+    "inquirer": "7.3.3",
+    "open": "7.1.0",
+    "ora": "5.0.0",
+    "parse-domain": "3.0.2",
+    "sanitize-filename": "1.6.3",
+    "semver": "7.3.2",
+    "slugify": "1.4.5",
+    "tslib": "1.13.0",
+    "yauzl": "2.10.0"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "1.22.2",
+    "@oclif/test": "1.2.6",
+    "@types/aws-regions": "2.1.0",
+    "@types/bent": "7.3.0",
+    "@types/chai": "4.2.12",
+    "@types/command-exists": "1.2.0",
+    "@types/dotenv-flow": "3.0.1",
+    "@types/find-parent-dir": "0.3.0",
+    "@types/follow-redirects": "1.13.0",
+    "@types/fs-extra": "9.0.1",
+    "@types/inquirer": "7.3.1",
+    "@types/mocha": "5.2.7",
+    "@types/node": "10.17.28",
+    "@types/semver": "7.3.4",
+    "@types/yauzl": "2.9.1",
+    "chai": "4.2.0",
+    "eslint": "5.16.0",
+    "eslint-config-oclif": "3.1.0",
+    "eslint-config-oclif-typescript": "0.1.0",
+    "globby": "10.0.2",
+    "mocha": "5.2.0",
+    "np": "6.5.0",
+    "nyc": "14.1.1",
+    "ts-node": "8.10.2",
+    "typescript": "3.9.7"
+  },
+  "oclif": {
+    "commands": "./lib/commands",
+    "bin": "scaffold",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topics": {
+      "aws": {
+        "description": "download AWS infrastructures"
+      },
+      "env": {
+        "description": "manage environments"
+      },
+      "sandbox": {
+        "description": "manage sandboxes"
+      }
+    }
+  }
+}
