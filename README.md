@@ -21,7 +21,7 @@
   <a href="https://github.com/scaffold-sh/cli/blob/master/LICENSE"><img src="https://img.shields.io/github/license/scaffold-sh/cli" alt="License"></a>
 </p>
 
-Scaffold is a framework for [IAC](https://en.wikipedia.org/wiki/Infrastructure_as_code) build around [Terraform](https://www.terraform.io) and the [CDKTF](https://learn.hashicorp.com/tutorials/terraform/cdktf), coupled with a [catalog](/docs/infrastructures/aws/static-website) that you could use to create a complete infrastructure on your own [AWS](https://aws.amazon.com) account, in seconds.
+Scaffold is a framework for [IAC](https://en.wikipedia.org/wiki/Infrastructure_as_code) build around [Terraform](https://www.terraform.io) and the [CDKTF](https://learn.hashicorp.com/tutorials/terraform/cdktf), coupled with a [catalog](/docs/infrastructures/aws/static-website) that you could use to create a complete [AWS](https://aws.amazon.com) infrastructure, defined as code, in seconds.
 
 All infrastructures are [**open sourced**](https://github.com/scaffold-sh) and defined as **Typescript code** using the [CDK for Terraform](https://learn.hashicorp.com/tutorials/terraform/cdktf). 
 
