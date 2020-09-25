@@ -21,13 +21,15 @@
   <a href="https://github.com/scaffold-sh/cli/blob/master/LICENSE"><img src="https://img.shields.io/github/license/scaffold-sh/cli" alt="License"></a>
 </p>
 
-The Scaffold CLI is a "wrapper" around [Terraform](https://www.terraform.io) and the [CDKTF](https://learn.hashicorp.com/tutorials/terraform/cdktf), coupled with a [catalog](https://scaffold.sh/docs/infrastructures/aws/static-website) that you could use to create a complete infrastructure on your own [AWS](https://aws.amazon.com) account, in seconds. 
+Scaffold is a framework for [IAC](https://en.wikipedia.org/wiki/Infrastructure_as_code) build around [Terraform](https://www.terraform.io) and the [CDKTF](https://learn.hashicorp.com/tutorials/terraform/cdktf), coupled with a [catalog](/docs/infrastructures/aws/static-website) that you could use to create a complete infrastructure on your own [AWS](https://aws.amazon.com) account, in seconds.
 
 All infrastructures are [**open sourced**](https://github.com/scaffold-sh) and defined as **Typescript code** using the [CDK for Terraform](https://learn.hashicorp.com/tutorials/terraform/cdktf). 
 
 The CDK (Cloud Development Kit) for Terraform allows developers to use familiar programming languages to define cloud infrastructure and provision it through [HashiCorp Terraform](https://www.terraform.io/). 
 
-Scaffold enhances the CDKTF with many features like [environments](https://scaffold.sh/docs/environments) and [sandboxes](https://scaffold.sh/docs/sandboxes) without using any configuration files, black box or lock-in. **You are free to go back to raw Terraform at any time.**
+Scaffold enhances Terraform and the CDKTF with many features like [environments](/docs/environments) and [sandboxes](/docs/sandboxes) without using any configuration files, black box or lock-in.
+
+**You are free to go back to raw Terraform at any time.**
 
 ## Prerequisites
 
