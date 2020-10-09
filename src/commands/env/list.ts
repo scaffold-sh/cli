@@ -11,6 +11,8 @@ import environmentsManager from "../../lib/environments"
  * used to list the created environments.
  */
 class EnvList extends BaseInfrastructureCommand {
+  static aliases = ["env"]
+
   static args = []
 
   static description = "list environments"

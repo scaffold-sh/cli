@@ -10,6 +10,8 @@ import environmentsManager from "../../lib/environments"
  * used to list the created sandboxes.
  */
 class SandboxList extends BaseInfrastructureCommand {
+  static aliases = ["sandbox"]
+
   static args = []
 
   static description = "list created sandboxes"
