@@ -76,6 +76,7 @@ USAGE
 * [`scaffold terraform:all`](#scaffold-terraformall)
 * [`scaffold cdktf:all`](#scaffold-cdktfall)
 * [`scaffold aws:static-website [PROJECT_NAME]`](#scaffold-awsstatic-website-project_name)
+* [`scaffold aws:serverless-docker [PROJECT_NAME]`](#scaffold-awsserverless-docker-project_name)
 
 ### `scaffold help [COMMAND]`
 
@@ -319,7 +320,7 @@ _See code: [src/commands/cdktf/all.ts](https://github.com/scaffold-sh/cli/blob/m
 
 ### `scaffold aws:static-website [PROJECT_NAME]`
 
-Download the Terraform code for deploying a [static website on AWS](https://github.com/scaffold-sh/aws-static-website).
+Download the Terraform code for the [static website infrastructure](https://github.com/scaffold-sh/aws-static-website).
 
 ```
 USAGE
@@ -330,3 +331,17 @@ OPTIONS
 ```
 
 _See code: [src/commands/aws/static-website.ts](https://github.com/scaffold-sh/cli/blob/master/src/commands/aws/static-website.ts)_
+
+### `scaffold aws:serverless-docker [PROJECT_NAME]`
+
+Download the Terraform code for the [serverless Docker infrastructure](https://github.com/scaffold-sh/aws-serverless-docker).
+
+```
+USAGE
+  $ scaffold aws:serverless-docker [PROJECT_NAME]
+
+OPTIONS
+  -h, --help  show CLI help
+```
+
+_See code: [src/commands/aws/serverless-docker.ts](https://github.com/scaffold-sh/cli/blob/master/src/commands/aws/serverless-docker.ts)_
