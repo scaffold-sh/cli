@@ -1,5 +1,5 @@
 import { join } from "path"
-import { remove, outputFile, chmod } from "fs-extra"
+import { chmod, outputFile, remove } from "fs-extra"
 
 import ux from "cli-ux"
 

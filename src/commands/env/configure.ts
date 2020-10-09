@@ -11,6 +11,11 @@ import environmentsManager from "../../lib/environments"
  * used to configure an environment.
  */
 class EnvConfigure extends BaseInfrastructureCommand {
+  static args = [{
+    name: "environment",
+    required: true,
+  }]
+
   static description = "configure passed environment"
 
   static flags = {
@@ -18,11 +23,6 @@ class EnvConfigure extends BaseInfrastructureCommand {
       char: "h",
     }),
   }
-
-  static args = [{
-    name: "environment",
-    required: true,
-  }]
 
   async run() {
     const { args } = this.parse(EnvConfigure)

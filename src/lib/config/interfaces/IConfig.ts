@@ -1,13 +1,13 @@
 /**
  * Represents the auth values received from API during login.
- * @param user_id The user ID as ObjectID.
- * @param access_token The API access token.
- * @param github_oauth_token The GitHub OAuth token.
+ * @param accessToken The API access token.
+ * @param githubOauthToken The GitHub OAuth token.
+ * @param userId The user ID as ObjectID.
  */
 export interface IConfigAuth {
-  user_id: string;
-  access_token: string;
-  github_oauth_token: string;
+  accessToken: string;
+  githubOauthToken: string;
+  userId: string;
 }
 
 /**

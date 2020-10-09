@@ -16,8 +16,8 @@ const awsRegionPrompt = async (defaultAWSRegion?: string) => {
 
   const regions = awsRegions.list().map(region => region.code)
 
-  const { aws_region: awsRegion } = await inquirer.prompt<{aws_region: string}>([{
-    name: "aws_region",
+  const { awsRegion } = await inquirer.prompt<{awsRegion: string}>([{
+    name: "awsRegion",
     message: "AWS region:",
     type: "list",
     choices: regions,

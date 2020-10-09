@@ -13,10 +13,10 @@ const projectNamePrompt = async () => {
   ux.log(chalk.bold("\n› Choose a project name"))
   ux.log(chalk.hex("#bbb")("  What is the name of your project?"))
 
-  const { project_name: projectName } = await inquirer.prompt<{
-    project_name: string;
+  const { projectName } = await inquirer.prompt<{
+    projectName: string;
   }>([{
-    name: "project_name",
+    name: "projectName",
     message: "Project name:",
     type: "input",
     validate: async (projectName: string) => {

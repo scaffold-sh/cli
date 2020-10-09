@@ -10,7 +10,7 @@ import { IConfigAuth } from "../config/interfaces/IConfig"
  */
 const constructAPI = (auth: IConfigAuth) => {
   return bent(`${process.env.BASE_URL}/api`, {
-    Authorization: `Bearer ${auth.user_id}:${auth.access_token}`,
+    Authorization: `Bearer ${auth.userId}:${auth.accessToken}`,
   }, "json")
 }
 

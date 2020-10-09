@@ -16,12 +16,18 @@ import AWSS3Backend from "../../lib/backends/AWSS3Backend"
 import confirmSandboxDeletionPrompt from "../../lib/prompts/confirmSandboxDeletionPrompt"
 
 import getNodeEnv from "../../lib/environments/getNodeEnv"
+import IAWSInfrastructureEnvVars from "../../lib/infrastructures/interfaces/IAWSInfrastructureEnvVars"
 
 /**
  * Represents the "scaffold sandbox:delete {environment}" command
  * used to delete a sandbox for an environment.
  */
 class SandboxDelete extends BaseInfrastructureCommand {
+  static args = [{
+    name: "environment",
+    required: true,
+  }]
+
   static description = "delete sandbox for passed environment"
 
   static flags = {
@@ -29,11 +35,6 @@ class SandboxDelete extends BaseInfrastructureCommand {
       char: "h",
     }),
   }
-
-  static args = [{
-    name: "environment",
-    required: true,
-  }]
 
   async run() {
     const { args } = this.parse(SandboxDelete)
@@ -117,19 +118,13 @@ class SandboxDelete extends BaseInfrastructureCommand {
       sandbox: sandboxEnvPath,
     } = environmentsManager.getPaths(infrastructurePath, environmentSandboxToDelete)
 
-    const uppercasedEnvVars = dotenv.parse([
+    const envVars = dotenv.parse([
       sandboxEnvPath,
-    ])
-
-    const envVars: any = {}
-
-    Object.keys(uppercasedEnvVars).forEach(uppercasedKey => {
-      envVars[uppercasedKey.toLowerCase()] = uppercasedEnvVars[uppercasedKey]
-    })
+    ]) as any as IAWSInfrastructureEnvVars
 
     const s3Backend = new AWSS3Backend(
-      envVars.scaffold_aws_region,
-      envVars.scaffold_aws_profile
+      envVars.SCAFFOLD_AWS_REGION,
+      envVars.SCAFFOLD_AWS_PROFILE
     )
 
     const backendEnvVars = s3Backend.generateBackendEnvVarsFromInfraEnvVars(

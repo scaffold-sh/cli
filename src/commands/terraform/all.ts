@@ -9,16 +9,6 @@ import InfrastructureFactory from "../../lib/infrastructures/InfrastructureFacto
  * used to forward commands to the Terraform binary.
  */
 class TerraformAll extends BaseInfrastructureCommand {
-  static description = "forward commands to the Terraform binary"
-
-  static flags = {
-    help: flags.help({
-      char: "h",
-    }),
-  }
-
-  static args = []
-
   static aliases = [
     "apply",
     "console",
@@ -48,6 +38,16 @@ class TerraformAll extends BaseInfrastructureCommand {
     "push",
     "state",
   ].map(alias => `terraform:${alias}`)
+
+  static args = []
+
+  static description = "forward commands to the Terraform binary"
+
+  static flags = {
+    help: flags.help({
+      char: "h",
+    }),
+  }
 
   async run() {
     await this.ensureAllRequirements()

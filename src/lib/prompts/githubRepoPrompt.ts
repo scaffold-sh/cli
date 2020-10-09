@@ -19,12 +19,12 @@ const githubRepoPrompt = async (api: bent.RequestFunction<bent.ValidResponse>, d
 
   const loader = ora("").start()
 
-  const githubRepos = await api("/github/repositories") as {owner: string; name: string}[]
+  const githubRepos = await api("/github/repositories") as {name: string; owner: string}[]
 
   loader.stop()
 
-  const { fully_qualified_github_repo: fullyQualifiedGithubRepo } = await inquirer.prompt<{fully_qualified_github_repo: string}>([{
-    name: "fully_qualified_github_repo",
+  const { fullyQualifiedGithubRepo } = await inquirer.prompt<{fullyQualifiedGithubRepo: string}>([{
+    name: "fullyQualifiedGithubRepo",
     message: "Repository:",
     type: "list",
     choices: githubRepos.map(repo => `${repo.owner}/${repo.name}`),
@@ -34,8 +34,8 @@ const githubRepoPrompt = async (api: bent.RequestFunction<bent.ValidResponse>, d
   const [githubRepoOwner, githubRepo] = fullyQualifiedGithubRepo.split("/")
 
   return {
-    github_repo_owner: githubRepoOwner,
-    github_repo: githubRepo,
+    githubRepoOwner,
+    githubRepo,
   }
 }
 

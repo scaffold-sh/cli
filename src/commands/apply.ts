@@ -17,6 +17,11 @@ import getNodeEnv from "../lib/environments/getNodeEnv"
  * used to update the infrastructure of an environment.
  */
 class Apply extends BaseInfrastructureCommand {
+  static args = [{
+    name: "environment",
+    required: true,
+  }]
+
   static description = "update infrastructure for passed environment"
 
   static flags = {
@@ -28,11 +33,6 @@ class Apply extends BaseInfrastructureCommand {
       default: false,
     }),
   }
-
-  static args = [{
-    name: "environment",
-    required: true,
-  }]
 
   static strict = false
 

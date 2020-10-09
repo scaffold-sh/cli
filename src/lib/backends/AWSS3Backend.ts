@@ -11,13 +11,13 @@ import IAWSS3BackendEnvVars from "./interfaces/IAWSS3BackendEnvVars"
  * @implement IBackend
  */
 class AWSS3Backend implements IBackend<IAWSInfrastructureEnvVars, IAWSS3BackendEnvVars> {
-  readonly region: string
+  readonly dynamoDB: AWS.DynamoDB
 
   readonly profile: string
 
-  readonly s3: AWS.S3
+  readonly region: string
 
-  readonly dynamoDB: AWS.DynamoDB
+  readonly s3: AWS.S3
 
   /**
    * Creates an AWS S3 backend.
@@ -47,7 +47,7 @@ class AWSS3Backend implements IBackend<IAWSInfrastructureEnvVars, IAWSS3BackendE
 
   async create(backendEnvVars: IAWSS3BackendEnvVars) {
     await this.s3.createBucket({
-      Bucket: backendEnvVars.scaffold_aws_s3_backend_bucket,
+      Bucket: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_BUCKET,
       // Fix "InvalidLocationConstraint: The specified location-constraint is not valid" error
       // See: https://github.com/boto/boto3/issues/125
       CreateBucketConfiguration: this.region === "us-east-1" ? undefined : {
@@ -57,14 +57,14 @@ class AWSS3Backend implements IBackend<IAWSInfrastructureEnvVars, IAWSS3BackendE
 
     try {
       await this.s3.putBucketVersioning({
-        Bucket: backendEnvVars.scaffold_aws_s3_backend_bucket,
+        Bucket: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_BUCKET,
         VersioningConfiguration: {
           Status: "Enabled",
         },
       }).promise()
 
       await this.dynamoDB.createTable({
-        TableName: backendEnvVars.scaffold_aws_s3_backend_dynamodb_table,
+        TableName: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_DYNAMODB_TABLE,
         BillingMode: "PAY_PER_REQUEST",
         AttributeDefinitions: [{
           AttributeName: "LockID",
@@ -77,58 +77,11 @@ class AWSS3Backend implements IBackend<IAWSInfrastructureEnvVars, IAWSS3BackendE
       }).promise()
     } catch (error) {
       await this.s3.deleteBucket({
-        Bucket: backendEnvVars.scaffold_aws_s3_backend_bucket,
+        Bucket: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_BUCKET,
       }).promise()
 
       throw error
     }
-  }
-
-  async destroy(backendEnvVars: IAWSS3BackendEnvVars) {
-    try {
-      await this.deleteStateBucket(backendEnvVars)
-    } catch (error) {
-      if (!["ResourceNotFoundException", "NoSuchBucket"].includes(error.code)) {
-        throw error
-      }
-    }
-
-    try {
-      await this.dynamoDB.deleteTable({
-        TableName: backendEnvVars.scaffold_aws_s3_backend_dynamodb_table,
-      }).promise()
-    } catch (error) {
-      if (error.code !== "ResourceNotFoundException") {
-        throw error
-      }
-    }
-  }
-
-  generateBackendEnvVarsFromInfraEnvVars(infrastructureEnvVars: IAWSInfrastructureEnvVars) {
-    const s3BackendBucket = this.sanitizeS3BucketName(
-      `${infrastructureEnvVars.scaffold_resource_names_prefix}_state`
-    )
-
-    const s3BackendDynamoDBTable = `${infrastructureEnvVars.scaffold_resource_names_prefix}_state_locks`
-    const s3BackendKey = "terraform.tfstate"
-
-    const backendVars: IAWSS3BackendEnvVars = {
-      scaffold_aws_s3_backend_key: s3BackendKey,
-      scaffold_aws_s3_backend_bucket: s3BackendBucket,
-      scaffold_aws_s3_backend_dynamodb_table: s3BackendDynamoDBTable,
-    }
-
-    return backendVars
-  }
-
-  /**
-   * Sanitizes the S3 bucket name by replacing invalid characters with "-".
-   * @param bucketName The bucket name.
-   *
-   * @returns The sanitized bucket name.
-   */
-  private sanitizeS3BucketName(bucketName: string) {
-    return bucketName.replace(/[^a-z0-9.-]/gi, "-")
   }
 
   /**
@@ -139,8 +92,8 @@ class AWSS3Backend implements IBackend<IAWSInfrastructureEnvVars, IAWSS3BackendE
    */
   private async deleteStateBucket(backendEnvVars: IAWSS3BackendEnvVars) {
     let versionList = await this.s3.listObjectVersions({
-      Bucket: backendEnvVars.scaffold_aws_s3_backend_bucket,
-      Prefix: backendEnvVars.scaffold_aws_s3_backend_key,
+      Bucket: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_BUCKET,
+      Prefix: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_KEY,
     }).promise()
 
     /* eslint-disable no-constant-condition */
@@ -155,8 +108,8 @@ class AWSS3Backend implements IBackend<IAWSInfrastructureEnvVars, IAWSS3BackendE
 
       for (const version of versions) {
         deleteObjectsPromises.push(this.s3.deleteObject({
-          Bucket: backendEnvVars.scaffold_aws_s3_backend_bucket,
-          Key: backendEnvVars.scaffold_aws_s3_backend_key,
+          Bucket: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_BUCKET,
+          Key: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_KEY,
           VersionId: version.VersionId,
         }).promise())
       }
@@ -167,8 +120,8 @@ class AWSS3Backend implements IBackend<IAWSInfrastructureEnvVars, IAWSS3BackendE
       if (versionList.IsTruncated) {
         /* eslint-disable no-await-in-loop */
         versionList = await this.s3.listObjectVersions({
-          Bucket: backendEnvVars.scaffold_aws_s3_backend_bucket,
-          Prefix: backendEnvVars.scaffold_aws_s3_backend_key,
+          Bucket: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_BUCKET,
+          Prefix: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_KEY,
           VersionIdMarker: versions[versions.length - 1].VersionId,
         }).promise()
       } else {
@@ -177,8 +130,55 @@ class AWSS3Backend implements IBackend<IAWSInfrastructureEnvVars, IAWSS3BackendE
     }
 
     await this.s3.deleteBucket({
-      Bucket: backendEnvVars.scaffold_aws_s3_backend_bucket,
+      Bucket: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_BUCKET,
     }).promise()
+  }
+
+  async destroy(backendEnvVars: IAWSS3BackendEnvVars) {
+    try {
+      await this.deleteStateBucket(backendEnvVars)
+    } catch (error) {
+      if (!["ResourceNotFoundException", "NoSuchBucket"].includes(error.code)) {
+        throw error
+      }
+    }
+
+    try {
+      await this.dynamoDB.deleteTable({
+        TableName: backendEnvVars.SCAFFOLD_AWS_S3_BACKEND_DYNAMODB_TABLE,
+      }).promise()
+    } catch (error) {
+      if (error.code !== "ResourceNotFoundException") {
+        throw error
+      }
+    }
+  }
+
+  generateBackendEnvVarsFromInfraEnvVars(infrastructureEnvVars: IAWSInfrastructureEnvVars) {
+    const s3BackendBucket = this.sanitizeS3BucketName(
+      `${infrastructureEnvVars.SCAFFOLD_RESOURCE_NAMES_PREFIX}_state`
+    )
+
+    const s3BackendDynamoDBTable = `${infrastructureEnvVars.SCAFFOLD_RESOURCE_NAMES_PREFIX}_state_locks`
+    const s3BackendKey = "terraform.tfstate"
+
+    const backendVars: IAWSS3BackendEnvVars = {
+      SCAFFOLD_AWS_S3_BACKEND_KEY: s3BackendKey,
+      SCAFFOLD_AWS_S3_BACKEND_BUCKET: s3BackendBucket,
+      SCAFFOLD_AWS_S3_BACKEND_DYNAMODB_TABLE: s3BackendDynamoDBTable,
+    }
+
+    return backendVars
+  }
+
+  /**
+   * Sanitizes the S3 bucket name by replacing invalid characters with "-".
+   * @param bucketName The bucket name.
+   *
+   * @returns The sanitized bucket name.
+   */
+  private sanitizeS3BucketName(bucketName: string) {
+    return bucketName.replace(/[^a-z0-9.-]/gi, "-")
   }
 }
 

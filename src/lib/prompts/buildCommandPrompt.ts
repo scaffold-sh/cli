@@ -14,28 +14,22 @@ const buildCommandPrompt = async (defaultBuildCommand?: string, defaultBuildOutp
   ux.log(chalk.bold(`\n› Set a build command ${chalk.yellowBright("(optional)")}`))
   ux.log(chalk.hex("#bbb")("  Do your website needs to be build (e.g. npm i && npm run build)?"))
 
-  const {
-    build_command: buildCommand,
-    build_output_dir: buildOutputDir,
-  } = await inquirer.prompt<{
-    build_command: string;
-    build_output_dir: string;
-  }>([{
-    name: "build_command",
+  const { buildCommand, buildOutputDir } = await inquirer.prompt<{buildCommand: string|undefined;buildOutputDir: string|undefined}>([{
+    name: "buildCommand",
     message: "Build command:",
     type: "input",
     default: defaultBuildCommand || undefined,
   }, {
-    name: "build_output_dir",
+    name: "buildOutputDir",
     message: "Build output directory:",
     default: defaultBuildOutputDir || "build",
     type: "input",
-    when: (answers: any) => Boolean(answers.build_command),
+    when: (answers: any) => Boolean(answers.buildCommand),
   }])
 
   return {
-    build_command: buildCommand,
-    build_output_dir: buildOutputDir,
+    buildCommand: buildCommand,
+    buildOutputDir: buildOutputDir,
   }
 }
 

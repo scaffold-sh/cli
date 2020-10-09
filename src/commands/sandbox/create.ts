@@ -13,6 +13,11 @@ import environmentsManager from "../../lib/environments"
  * used to create a sandbox for an environment.
  */
 class SandboxCreate extends BaseInfrastructureCommand {
+  static args = [{
+    name: "environment",
+    required: false,
+  }]
+
   static description = "create sandbox for passed environment"
 
   static flags = {
@@ -20,11 +25,6 @@ class SandboxCreate extends BaseInfrastructureCommand {
       char: "h",
     }),
   }
-
-  static args = [{
-    name: "environment",
-    required: false,
-  }]
 
   async run() {
     const { args } = this.parse(SandboxCreate)
@@ -61,8 +61,8 @@ class SandboxCreate extends BaseInfrastructureCommand {
       this.log("No environment name passed. Asking to choose one.\n")
       const environmentChoices = environments.all
 
-      const { chosen_environment: chosenEnvironment } = await inquirer.prompt<{ chosen_environment: string }>([{
-        name: "chosen_environment",
+      const { chosenEnvironment } = await inquirer.prompt<{ chosenEnvironment: string }>([{
+        name: "chosenEnvironment",
         message: "Environment to create a sandbox from:",
         type: "list",
         choices: environmentChoices,

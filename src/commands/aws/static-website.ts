@@ -18,16 +18,16 @@ import projectNamePrompt from "../../lib/prompts/projectNamePrompt"
  * used to download and install the AWS static website infrastructure.
  */
 export default class AwsStaticWebsite extends BaseInfrastructureCommand {
+  static args = [{
+    name: "project_name",
+    required: false,
+  }]
+
   static description = "download static website infrastructure code"
 
   static flags = {
     help: flags.help({ char: "h" }),
   }
-
-  static args = [{
-    name: "project_name",
-    required: false,
-  }]
 
   async run() {
     await this.ensureAllRequirements()

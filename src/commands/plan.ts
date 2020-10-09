@@ -15,6 +15,11 @@ import getNodeEnv from "../lib/environments/getNodeEnv"
  * the infrastructure modifications for an environment.
  */
 class Plan extends BaseInfrastructureCommand {
+  static args = [{
+    name: "environment",
+    required: true,
+  }]
+
   static description = "plan infrastructure modifications for passed environment"
 
   static flags = {
@@ -26,11 +31,6 @@ class Plan extends BaseInfrastructureCommand {
       default: false,
     }),
   }
-
-  static args = [{
-    name: "environment",
-    required: true,
-  }]
 
   static strict = false
 

@@ -30,8 +30,8 @@ const githubBranchPrompt = async (
 
   loader.stop()
 
-  const { github_branch: githubBranch } = await inquirer.prompt<{github_branch: string}>([{
-    name: "github_branch",
+  const { githubBranch } = await inquirer.prompt<{githubBranch: string}>([{
+    name: "githubBranch",
     message: "Branch:",
     type: "list",
     choices: githubBranches.map(branch => branch.name),

@@ -1,5 +1,5 @@
 
-import { readJson, pathExists } from "fs-extra"
+import { pathExists, readJson } from "fs-extra"
 
 import write from "./write"
 import IConfig from "./interfaces/IConfig"

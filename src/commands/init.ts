@@ -74,8 +74,8 @@ class Init extends BaseInfrastructureCommand {
 
     const environmentChoices = environments.all
 
-    const { environment_to_sandbox: environmentToSandbox } = await inquirer.prompt<{ environment_to_sandbox: string }>([{
-      name: "environment_to_sandbox",
+    const { environmentToSandbox } = await inquirer.prompt<{ environmentToSandbox: string }>([{
+      name: "environmentToSandbox",
       message: "Environment to create a sandbox from:",
       type: "list",
       choices: environmentChoices,

@@ -18,16 +18,16 @@ import projectNamePrompt from "../../lib/prompts/projectNamePrompt"
  * used to download and install the AWS serverless docker infrastructure.
  */
 export default class AwsServerlessDocker extends BaseInfrastructureCommand {
+  static args = [{
+    name: "project_name",
+    required: false,
+  }]
+
   static description = "download serverless docker infrastructure code"
 
   static flags = {
     help: flags.help({ char: "h" }),
   }
-
-  static args = [{
-    name: "project_name",
-    required: false,
-  }]
 
   async run() {
     await this.ensureAllRequirements()

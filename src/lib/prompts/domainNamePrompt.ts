@@ -1,7 +1,7 @@
 import chalk from "chalk"
 import inquirer from "inquirer"
 
-import { parseDomain, fromUrl, ParseResultListed } from "parse-domain"
+import { ParseResultListed, fromUrl, parseDomain } from "parse-domain"
 import ux from "cli-ux"
 
 /**

@@ -10,16 +10,28 @@
       "requireParamType": false,
       "requireReturnType": false
     }],
+    "no-new": ["off"],
+    "camelcase": ["error"],
     "unicorn/filename-case": ["warning", {
       "cases": {
         "camelCase": true,
         "pascalCase": true
       }
     }],
+    "unicorn/no-abusive-eslint-disable": ["off"],
     "indent": ["error", 2, {
       "SwitchCase": 1
     }],
+    "sort-imports": ["error", {
+      "ignoreDeclarationSort": true
+    }],
     "object-curly-spacing": ["error", "always"],
-    "@typescript-eslint/interface-name-prefix": ["error", "always"]
+    "@typescript-eslint/interface-name-prefix": ["error", "always"],
+    "@typescript-eslint/member-ordering": ["error", {
+      "default": {
+        "memberTypes": ["signature", "field", "constructor", "method"],
+        "order": "alphabetically"
+      }
+    }]
   }
 }

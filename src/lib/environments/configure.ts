@@ -70,24 +70,18 @@ const configure = async (
     sandbox: sandboxEnvPath,
   } = getPaths(infrastructurePath, environment)
 
-  let uppercasedDefaultEnvVars: {[key: string]: string} = {}
+  let defaultEnvVars: {[key: string]: string} = {}
 
   const hasGlobalEnv = await pathExists(globalEnvPath)
   const hasSpecificEnv = environments.all.includes(environment)
 
   if (hasGlobalEnv) {
-    uppercasedDefaultEnvVars = Object.assign(uppercasedDefaultEnvVars, dotenv.parse(globalEnvPath))
+    defaultEnvVars = Object.assign(defaultEnvVars, dotenv.parse(globalEnvPath))
   }
 
   if (hasSpecificEnv) {
-    uppercasedDefaultEnvVars = Object.assign(uppercasedDefaultEnvVars, dotenv.parse(specificEnvPath))
+    defaultEnvVars = Object.assign(defaultEnvVars, dotenv.parse(specificEnvPath))
   }
-
-  const defaultEnvVars: {[key: string]: string} = {}
-
-  Object.keys(uppercasedDefaultEnvVars).forEach(uppercasedKey => {
-    defaultEnvVars[uppercasedKey.toLowerCase()] = uppercasedDefaultEnvVars[uppercasedKey]
-  })
 
   let infrastructureEnvVars = await infrastructure.configureEnv(
     configFilePath,
@@ -100,8 +94,8 @@ const configure = async (
   const createBackend = !hasSpecificEnv || isSandbox
 
   const s3Backend = new AWSS3Backend(
-    infrastructureEnvVars.scaffold_aws_region,
-    infrastructureEnvVars.scaffold_aws_profile
+    infrastructureEnvVars.SCAFFOLD_AWS_REGION,
+    infrastructureEnvVars.SCAFFOLD_AWS_PROFILE
   )
 
   let backendEnvVars: IAWSS3BackendEnvVars|null = null
@@ -217,8 +211,8 @@ const configure = async (
 
   if (createBackend) {
     ux.log(`\n${chalk.green("Created")} AWS S3 Backend`)
-    ux.log(`\n  S3 bucket:      ${chalk.bold(backendEnvVars!.scaffold_aws_s3_backend_bucket)}`)
-    ux.log(`  DynamoDB table: ${chalk.bold(backendEnvVars!.scaffold_aws_s3_backend_dynamodb_table)}`)
+    ux.log(`\n  S3 bucket:      ${chalk.bold(backendEnvVars!.SCAFFOLD_AWS_S3_BACKEND_BUCKET)}`)
+    ux.log(`  DynamoDB table: ${chalk.bold(backendEnvVars!.SCAFFOLD_AWS_S3_BACKEND_DYNAMODB_TABLE)}`)
   }
 
   if (isSandbox) {

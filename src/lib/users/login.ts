@@ -1,4 +1,4 @@
-import { Server, createServer, IncomingMessage, ServerResponse } from "http"
+import { IncomingMessage, Server, ServerResponse, createServer } from "http"
 import { AddressInfo } from "net"
 
 import ux from "cli-ux"
@@ -10,16 +10,16 @@ import IConfig, { IConfigAuth } from "../config/interfaces/IConfig"
 import config from "../config"
 
 /**
- * The decoded payload set in query string during login.
+ * Represents the decoded payload set in query string during login.
  * @internal
- * @property access_token The API access token.
- * @property user_id The user ID as ObjectID.
- * @property github_oauth_token The GitHub OAuth token.
+ * @property accessToken The API access token.
+ * @property userId The user ID as ObjectID.
+ * @property githubOauthToken The GitHub OAuth token.
  */
 interface ILoginRequestPayload {
-  access_token?: string;
-  user_id?: string;
-  github_oauth_token?: string;
+  accessToken?: string;
+  githubOauthToken?: string;
+  userId?: string;
 }
 
 /**
@@ -31,7 +31,7 @@ interface ILoginRequestPayload {
 const login = async (configFilePath: string) => {
   const userConfig = await config.read(configFilePath)
 
-  if (userConfig.auth && userConfig.auth.access_token && userConfig.auth.user_id) {
+  if (userConfig.auth && userConfig.auth.accessToken && userConfig.auth.userId) {
     return ({
       auth: userConfig.auth,
     }) as IConfig
@@ -76,9 +76,9 @@ const login = async (configFilePath: string) => {
           return throwError()
         }
 
-        const accessToken = decodedPayload.access_token
-        const userId = decodedPayload.user_id
-        const githubOauthToken = decodedPayload.github_oauth_token
+        const accessToken = decodedPayload.accessToken
+        const userId = decodedPayload.userId
+        const githubOauthToken = decodedPayload.githubOauthToken
 
         loggedIn = true
 
@@ -89,9 +89,9 @@ const login = async (configFilePath: string) => {
         response.end("Success! You can close this window and return to the Scaffold CLI.")
 
         resolve({
-          access_token: accessToken,
-          user_id: userId,
-          github_oauth_token: githubOauthToken,
+          accessToken: accessToken,
+          userId: userId,
+          githubOauthToken: githubOauthToken,
         })
       })
 
@@ -137,9 +137,9 @@ const login = async (configFilePath: string) => {
   clearTimeout(loginTimeout)
 
   userConfig.auth = {
-    user_id: authCreds.user_id,
-    access_token: authCreds.access_token,
-    github_oauth_token: authCreds.github_oauth_token,
+    userId: authCreds.userId,
+    accessToken: authCreds.accessToken,
+    githubOauthToken: authCreds.githubOauthToken,
   }
 
   await config.write(configFilePath, userConfig)

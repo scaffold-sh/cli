@@ -2,20 +2,17 @@ import IInfrastructureEnvVars from "./IInfrastructureEnvVars"
 
 /**
  * Represents an infrastructure.
- * @property source_url The URL to the infrastructure source code zip.
- * @property source_container_folder_name The container folder name in infrastructure zip.
+ * @property sourceUrl The URL to the infrastructure source code zip.
+ * @property sourceContainerFolderName The container folder name in infrastructure zip.
  */
 interface IInfrastructure<T = IInfrastructureEnvVars> {
-  readonly source_url: string;
-  readonly source_container_folder_name: string;
+  readonly sourceContainerFolderName: string;
+  readonly sourceUrl: string;
 
   /**
-   * Downloads and installs infrastructure.
-   * @param inPath The path to install the infrastructure to.
-   *
-   * @returns Empty Promise object.
+   * Returns URL to redirect user to after first install.
    */
-  install(inPath: string): Promise<void>;
+  afterInstallURL(): string;
 
   /**
    * Configures a new environment.
@@ -33,14 +30,17 @@ interface IInfrastructure<T = IInfrastructureEnvVars> {
   globalEnvVars(): (keyof T)[];
 
   /**
+   * Downloads and installs infrastructure.
+   * @param inPath The path to install the infrastructure to.
+   *
+   * @returns Empty Promise object.
+   */
+  install(inPath: string): Promise<void>;
+
+  /**
    * Returns environment variables that need to be environment specific.
    */
   specificEnvVars(): (keyof T)[];
-
-  /**
-   * Returns URL to redirect user to after first install.
-   */
-  afterInstallURL(): string;
 }
 
 export default IInfrastructure

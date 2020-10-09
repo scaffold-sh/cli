@@ -9,18 +9,16 @@ import ux from "cli-ux"
  *
  * @returns A promise object representing the listen port.
  */
-const dockerContainerListenPort = async (
-  defaultDockerContainerListenPort?: string
-) => {
+const dockerContainerListenPort = async (defaultDockerContainerListenPort?: string) => {
   ux.log(chalk.bold("\n› Set your Docker container listen port"))
   ux.log(chalk.hex("#bbb")("  On which port do your Docker container listen to?"))
 
-  const { docker_container_listen_port: dockerContainerListenPort } = await inquirer.prompt<{docker_container_listen_port: string}>([{
-    name: "docker_container_port",
+  const { dockerContainerListenPort } = await inquirer.prompt<{dockerContainerListenPort: string}>([{
+    name: "dockerContainerListenPort",
     message: "Docker container listen port:",
     type: "input",
     default: defaultDockerContainerListenPort || undefined,
-    validate: (rawContainerPort) => {
+    validate: rawContainerPort => {
       const port = Number(rawContainerPort)
 
       if (!port) {
@@ -32,7 +30,7 @@ const dockerContainerListenPort = async (
       }
 
       return true
-    }
+    },
   }])
 
   return dockerContainerListenPort

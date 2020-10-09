@@ -13,12 +13,10 @@ const preDeployCommandPrompt = async (defaultPreDeployCommand?: string) => {
   ux.log(chalk.bold(`\n› Set a pre-deploy command ${chalk.yellowBright("(optional)")}`))
   ux.log(chalk.hex("#bbb")("  This command is run in a newly created production container, just before deployment."))
 
-  const {
-    pre_deploy_command: preDeployCommand,
-  } = await inquirer.prompt<{
-    pre_deploy_command: string;
+  const { preDeployCommand } = await inquirer.prompt<{
+    preDeployCommand: string;
   }>([{
-    name: "pre_deploy_command",
+    name: "preDeployCommand",
     message: "Pre-deploy command:",
     type: "input",
     default: defaultPreDeployCommand || undefined,

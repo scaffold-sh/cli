@@ -1,5 +1,5 @@
 import ObjectID from "bson-objectid"
-import { parseDomain, fromUrl, ParseResultListed } from "parse-domain"
+import { ParseResultListed, fromUrl, parseDomain } from "parse-domain"
 
 import bent from "bent"
 
@@ -25,65 +25,56 @@ import dockerContainerListenPort from "../../prompts/dockerContainerListenPort"
 
 /**
  * Represents the AWS serverless Docker infrastructure environement variables.
- * @property container_listen_port The port that needs to be used to send requests to your Docker container.
- * @property domain_names The domain names that need to be covered by the SSL certificate.
- * @property enable_auto_scaling Do auto-scaling needs to be enabled?
- * @property enable_https We need to wait for the ACM certificate to be "issued" to enable HTTPS.
- * @property fargate_tasks_cpu The CPU used by the Fargate tasks.
- * @property fargate_tasks_memory The memory used by the Fargate tasks.
- * @property github_branch The branch from which CodePipeline will deploy.
- * @property github_oauth_token The GitHub Oauth token that will be used by CodePipeline to pull website source code from repository.
- * @property github_repo_owner The owner of the GitHub repository.
- * @property github_repo The GitHub repository that contains the source code.
- * @property github_webhook_token A random token that will be used by CodePipeline and GitHub to prevent impersonation.
+ * @property CONTAINER_LISTEN_PORT The port that needs to be used to send requests to your Docker container.
+ * @property DOMAIN_NAMES The domain names that need to be covered by the SSL certificate.
+ * @property ENABLE_AUTO_SCALING Do auto-scaling needs to be enabled?
+ * @property ENABLE_HTTPS We need to wait for the ACM certificate to be "issued" to enable HTTPS.
+ * @property FARGATE_TASKS_CPU The CPU used by the Fargate tasks.
+ * @property FARGATE_TASKS_MEMORY The memory used by the Fargate tasks.
+ * @property GITHUB_BRANCH The branch from which CodePipeline will deploy.
+ * @property GITHUB_OAUTH_TOKEN The GitHub Oauth token that will be used by CodePipeline to pull website source code from repository.
+ * @property GITHUB_REPO The GitHub repository that contains the source code.
+ * @property GITHUB_REPO_OWNER The owner of the GitHub repository.
+ * @property GITHUB_WEBHOOK_TOKEN A random token that will be used by CodePipeline and GitHub to prevent impersonation.
+ * @property NUMBER_OF_AVAILABILITY_ZONES_USED The number of availability zones used by your infrastructure.
+ * @property PRE_DEPLOY_COMMAND A command that will run in a newly created production container, just before deployment.
  */
 interface IAWSServerlessDockerEnvVars extends IAWSInfrastructureEnvVars {
-  container_listen_port: string;
-  domain_names: string;
-  enable_auto_scaling: string;
-  enable_https: string;
-  fargate_tasks_cpu: string;
-  fargate_tasks_memory: string;
-  github_branch: string;
-  github_oauth_token: string;
-  github_repo: string;
-  github_repo_owner: string;
-  github_webhook_token: string;
-  number_of_availability_zones_used: string;
-  pre_deploy_command: string;
+  CONTAINER_LISTEN_PORT: string;
+  DOMAIN_NAMES: string;
+  ENABLE_AUTO_SCALING: string;
+  ENABLE_HTTPS: string;
+  FARGATE_TASKS_CPU: string;
+  FARGATE_TASKS_MEMORY: string;
+  GITHUB_BRANCH: string;
+  GITHUB_OAUTH_TOKEN: string;
+  GITHUB_REPO: string;
+  GITHUB_REPO_OWNER: string;
+  GITHUB_WEBHOOK_TOKEN: string;
+  NUMBER_OF_AVAILABILITY_ZONES_USED: string;
+  PRE_DEPLOY_COMMAND: string;
 }
 
 /**
  * Represents the AWS serverless Docker infrastructure.
  */
 class AWSServerlessDocker implements IInfrastructure<IAWSServerlessDockerEnvVars> {
-  source_url = "https://github.com/scaffold-sh/aws-serverless-docker/archive/master.zip"
+  sourceContainerFolderName = "aws-serverless-docker-master"
 
-  source_container_folder_name = "aws-serverless-docker-master"
+  sourceUrl = "https://github.com/scaffold-sh/aws-serverless-docker/archive/master.zip"
 
-  async install(inPath: string) {
-    const architectureZipPath  = await InfrastructureInstallManager.download(inPath, this.source_url)
-
-    const extractedZipFolderPath = await InfrastructureInstallManager.extractDownloadedZip(
-      inPath,
-      architectureZipPath,
-      this.source_container_folder_name
-    )
-
-    await InfrastructureInstallManager.cleanDownloadedZip(
-      architectureZipPath,
-      extractedZipFolderPath
-    )
+  afterInstallURL() {
+    return `${process.env.BASE_URL}/docs/infrastructures/aws/serverless-docker/after-install`
   }
 
   async configureEnv(configFilePath: string, defaults: Partial<IAWSServerlessDockerEnvVars>, hasGlobalEnv: boolean) {
     const envVars: Partial<IAWSServerlessDockerEnvVars> = {}
 
-    envVars.scaffold_aws_profile = await awsAccountPrompt(defaults.scaffold_aws_profile)
-    envVars.scaffold_aws_region = await awsRegionPrompt(defaults.scaffold_aws_region)
+    envVars.SCAFFOLD_AWS_PROFILE = await awsAccountPrompt(defaults.SCAFFOLD_AWS_PROFILE)
+    envVars.SCAFFOLD_AWS_REGION = await awsRegionPrompt(defaults.SCAFFOLD_AWS_REGION)
 
-    if (!hasGlobalEnv || typeof defaults.domain_names !== "undefined") {
-      const rawDomain = await domainNamePrompt(defaults.domain_names?.split(",")[0])
+    if (!hasGlobalEnv || typeof defaults.DOMAIN_NAMES !== "undefined") {
+      const rawDomain = await domainNamePrompt(defaults.DOMAIN_NAMES?.split(",")[0])
 
       const parseResults = parseDomain(fromUrl(rawDomain)) as ParseResultListed
       const { domain, topLevelDomains, subDomains } = parseResults
@@ -96,138 +87,147 @@ class AWSServerlessDocker implements IInfrastructure<IAWSServerlessDockerEnvVars
         domainNames = `${subDomains.join(".")}.${domain}.${topLevelDomains.join(".")}`
       }
 
-      envVars.domain_names = domainNames
+      envVars.DOMAIN_NAMES = domainNames
     }
 
     let login: IConfig|null = null
     let api: bent.RequestFunction<bent.ValidResponse>|null = null
 
     if (!hasGlobalEnv ||
-        typeof defaults.github_repo !== "undefined" ||
-        typeof defaults.github_repo_owner !== "undefined" ||
-        typeof defaults.github_branch !== "undefined" ||
-        typeof defaults.github_oauth_token !== "undefined" ||
-        typeof defaults.container_listen_port !== "undefined") {
+        typeof defaults.GITHUB_REPO !== "undefined" ||
+        typeof defaults.GITHUB_REPO_OWNER !== "undefined" ||
+        typeof defaults.GITHUB_BRANCH !== "undefined" ||
+        typeof defaults.GITHUB_OAUTH_TOKEN !== "undefined" ||
+        typeof defaults.CONTAINER_LISTEN_PORT !== "undefined") {
       login = await users.login(configFilePath)
       api = users.constructAPI(login!.auth!)
     }
 
     if (!hasGlobalEnv ||
-        typeof defaults.github_repo !== "undefined" ||
-        typeof defaults.github_repo_owner !== "undefined" ||
-        typeof defaults.github_branch !== "undefined") {
+        typeof defaults.GITHUB_REPO !== "undefined" ||
+        typeof defaults.GITHUB_REPO_OWNER !== "undefined" ||
+        typeof defaults.GITHUB_BRANCH !== "undefined") {
       const {
-        github_repo_owner: githubRepoOwner,
-        github_repo: githubRepo,
+        githubRepoOwner,
+        githubRepo,
       } = await githubRepoPrompt(
         api!,
-        defaults.github_repo_owner && defaults.github_repo ?
-          `${defaults.github_repo_owner}/${defaults.github_repo}` :
+        defaults.GITHUB_REPO_OWNER && defaults.GITHUB_REPO ?
+          `${defaults.GITHUB_REPO_OWNER}/${defaults.GITHUB_REPO}` :
           undefined
       )
 
       if (!hasGlobalEnv ||
-          typeof defaults.github_repo !== "undefined" ||
-          typeof defaults.github_repo_owner !== "undefined") {
-        envVars.github_repo_owner = githubRepoOwner
-        envVars.github_repo = githubRepo
+          typeof defaults.GITHUB_REPO !== "undefined" ||
+          typeof defaults.GITHUB_REPO_OWNER !== "undefined") {
+        envVars.GITHUB_REPO_OWNER = githubRepoOwner
+        envVars.GITHUB_REPO = githubRepo
       }
 
-      if (!hasGlobalEnv || typeof defaults.github_branch !== "undefined") {
-        envVars.github_branch = await githubBranchPrompt(
+      if (!hasGlobalEnv || typeof defaults.GITHUB_BRANCH !== "undefined") {
+        envVars.GITHUB_BRANCH = await githubBranchPrompt(
           githubRepoOwner,
           githubRepo,
           api!,
-          defaults.github_branch
+          defaults.GITHUB_BRANCH
         )
       }
     }
 
-    if (!hasGlobalEnv || typeof defaults.container_listen_port !== "undefined") {
-      
-      if (envVars.github_repo && envVars.github_repo_owner) {
+    if (!hasGlobalEnv || typeof defaults.CONTAINER_LISTEN_PORT !== "undefined") {
+      if (envVars.GITHUB_REPO && envVars.GITHUB_REPO_OWNER) {
         const containerListenPort = await api!(
-          `/github/repositories/dockerfile-port?repo=${encodeURIComponent(envVars.github_repo)}&repo_owner=${encodeURIComponent(envVars.github_repo_owner)}`
-        ) as {error?: string, port?: string}
+          `/github/repositories/dockerfile-port?repo=${encodeURIComponent(envVars.GITHUB_REPO)}&repo_owner=${encodeURIComponent(envVars.GITHUB_REPO_OWNER)}`
+        ) as {error?: string; port?: string}
 
         if (containerListenPort.port) {
-          envVars.container_listen_port = containerListenPort.port
+          envVars.CONTAINER_LISTEN_PORT = containerListenPort.port
         }
-        
+
         if (containerListenPort.error === "no_dockerfile_found") {
           throw new Error("Your repository must contain a Dockerfile at the root path.")
         }
       }
 
-      if (!envVars.container_listen_port) {
-        envVars.container_listen_port = await dockerContainerListenPort(defaults.container_listen_port)
+      if (!envVars.CONTAINER_LISTEN_PORT) {
+        envVars.CONTAINER_LISTEN_PORT = await dockerContainerListenPort(defaults.CONTAINER_LISTEN_PORT)
       }
-
     }
 
-    if (!hasGlobalEnv || typeof defaults.pre_deploy_command !== "undefined") {
-      envVars.pre_deploy_command = await preDeployCommandPrompt(defaults.pre_deploy_command)
+    if (!hasGlobalEnv || typeof defaults.PRE_DEPLOY_COMMAND !== "undefined") {
+      envVars.PRE_DEPLOY_COMMAND = await preDeployCommandPrompt(defaults.PRE_DEPLOY_COMMAND)
     }
 
-    if (!hasGlobalEnv || typeof defaults.enable_auto_scaling !== "undefined") {
-      envVars.enable_auto_scaling = "true"
+    if (!hasGlobalEnv || typeof defaults.ENABLE_AUTO_SCALING !== "undefined") {
+      envVars.ENABLE_AUTO_SCALING = "true"
     }
 
-    if (!hasGlobalEnv || typeof defaults.enable_https !== "undefined") {
-      envVars.enable_https = "false"
+    if (!hasGlobalEnv || typeof defaults.ENABLE_HTTPS !== "undefined") {
+      envVars.ENABLE_HTTPS = "false"
     }
 
-    if (!hasGlobalEnv || typeof defaults.fargate_tasks_cpu !== "undefined") {
-      envVars.fargate_tasks_cpu = "256"
+    if (!hasGlobalEnv || typeof defaults.FARGATE_TASKS_CPU !== "undefined") {
+      envVars.FARGATE_TASKS_CPU = "256"
     }
 
-    if (!hasGlobalEnv || typeof defaults.fargate_tasks_memory !== "undefined") {
-      envVars.fargate_tasks_memory = "512"
+    if (!hasGlobalEnv || typeof defaults.FARGATE_TASKS_MEMORY !== "undefined") {
+      envVars.FARGATE_TASKS_MEMORY = "512"
     }
 
-    if (!hasGlobalEnv || typeof defaults.number_of_availability_zones_used !== "undefined") {
-      envVars.number_of_availability_zones_used = "1"
+    if (!hasGlobalEnv || typeof defaults.NUMBER_OF_AVAILABILITY_ZONES_USED !== "undefined") {
+      envVars.NUMBER_OF_AVAILABILITY_ZONES_USED = "1"
     }
 
-    if (!hasGlobalEnv || typeof defaults.github_webhook_token !== "undefined") {
-      envVars.github_webhook_token = await generateToken()
+    if (!hasGlobalEnv || typeof defaults.GITHUB_WEBHOOK_TOKEN !== "undefined") {
+      envVars.GITHUB_WEBHOOK_TOKEN = await generateToken()
     }
 
-    if (!hasGlobalEnv || typeof defaults.github_oauth_token !== "undefined") {
-      envVars.github_oauth_token = login!.auth!.github_oauth_token
+    if (!hasGlobalEnv || typeof defaults.GITHUB_OAUTH_TOKEN !== "undefined") {
+      envVars.GITHUB_OAUTH_TOKEN = login!.auth!.githubOauthToken
     }
 
-    envVars.scaffold_resource_names_prefix = `scaffold_${(new ObjectID()).toHexString()}`
+    envVars.SCAFFOLD_RESOURCE_NAMES_PREFIX = `scaffold_${(new ObjectID()).toHexString()}`
 
     return envVars
   }
 
   globalEnvVars() {
     const values: (keyof IAWSServerlessDockerEnvVars)[] = [
-      "github_repo",
-      "github_repo_owner",
-      "pre_deploy_command",
-      "container_listen_port",
+      "GITHUB_REPO",
+      "GITHUB_REPO_OWNER",
+      "PRE_DEPLOY_COMMAND",
+      "CONTAINER_LISTEN_PORT",
     ]
 
     return values
+  }
+
+  async install(inPath: string) {
+    const architectureZipPath  = await InfrastructureInstallManager.download(inPath, this.sourceUrl)
+
+    const extractedZipFolderPath = await InfrastructureInstallManager.extractDownloadedZip(
+      inPath,
+      architectureZipPath,
+      this.sourceContainerFolderName
+    )
+
+    await InfrastructureInstallManager.cleanDownloadedZip(
+      architectureZipPath,
+      extractedZipFolderPath
+    )
   }
 
   specificEnvVars() {
     const values: (keyof IAWSServerlessDockerEnvVars)[] = [
-      "github_branch",
-      "domain_names",
-      "enable_auto_scaling",
-      "number_of_availability_zones_used",
-      "fargate_tasks_cpu",
-      "fargate_tasks_memory",
+      "GITHUB_BRANCH",
+      "DOMAIN_NAMES",
+      "ENABLE_AUTO_SCALING",
+      "NUMBER_OF_AVAILABILITY_ZONES_USED",
+      "FARGATE_TASKS_CPU",
+      "FARGATE_TASKS_MEMORY",
     ]
 
     return values
-  }
-
-  afterInstallURL() {
-    return `${process.env.BASE_URL}/docs/infrastructures/aws/serverless-docker/after-install`
   }
 }
 

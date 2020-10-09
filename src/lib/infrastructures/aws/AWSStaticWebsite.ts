@@ -1,5 +1,5 @@
 import ObjectID from "bson-objectid"
-import { parseDomain, fromUrl, ParseResultListed } from "parse-domain"
+import { ParseResultListed, fromUrl, parseDomain } from "parse-domain"
 
 import bent from "bent"
 
@@ -23,59 +23,48 @@ import IConfig from "../../config/interfaces/IConfig"
 
 /**
  * Represents the AWS static website infrastructure environement variables.
- * @property domain_names The domain name(s) used for the website.
- * @property enable_https The ACM certificate needs to be "issued" before enabling HTTPS.
- * @property build_command The command that needs to be run to build this website.
- * @property build_output_dir The directory where the build command output this website.
- * @property github_repo_owner The owner of the GitHub repository.
- * @property github_repo The GitHub repository that contains the website source code.
- * @property github_branch The branch from which this website will be deployed.
- * @property github_oauth_token The GitHub Oauth token that will be used by CodePipeline to pull website source code from repository.
- * @property github_webhook_token A random token that will be used by CodePipeline and GitHub to prevent impersonation.
+ * @property BUILD_COMMAND The command that needs to be run to build this website.
+ * @property BUILD_OUTPUT_DIR The directory where the build command output this website.
+ * @property DOMAIN_NAMES The domain name(s) used for the website.
+ * @property ENABLE_HTTPS The ACM certificate needs to be "issued" before enabling HTTPS.
+ * @property GITHUB_BRANCH The branch from which this website will be deployed.
+ * @property GITHUB_OAUTH_TOKEN The GitHub Oauth token that will be used by CodePipeline to pull website source code from repository.
+ * @property GITHUB_REPO The GitHub repository that contains the website source code.
+ * @property GITHUB_REPO_OWNER The owner of the GitHub repository.
+ * @property GITHUB_WEBHOOK_TOKEN A random token that will be used by CodePipeline and GitHub to prevent impersonation.
  */
 interface IAWSStaticWebsiteEnvVars extends IAWSInfrastructureEnvVars {
-  domain_names: string;
-  enable_https: string;
-  build_command: string;
-  build_output_dir: string;
-  github_repo_owner: string;
-  github_repo: string;
-  github_branch: string;
-  github_oauth_token: string;
-  github_webhook_token: string;
+  BUILD_COMMAND: string;
+  BUILD_OUTPUT_DIR: string;
+  DOMAIN_NAMES: string;
+  ENABLE_HTTPS: string;
+  GITHUB_BRANCH: string;
+  GITHUB_OAUTH_TOKEN: string;
+  GITHUB_REPO: string;
+  GITHUB_REPO_OWNER: string;
+  GITHUB_WEBHOOK_TOKEN: string;
 }
 
 /**
  * Represents the AWS static website infrastructure.
  */
 class AWSStaticWebsite implements IInfrastructure<IAWSStaticWebsiteEnvVars> {
-  source_url = "https://github.com/scaffold-sh/aws-static-website/archive/master.zip"
+  sourceContainerFolderName = "aws-static-website-master"
 
-  source_container_folder_name = "aws-static-website-master"
+  sourceUrl = "https://github.com/scaffold-sh/aws-static-website/archive/master.zip"
 
-  async install(inPath: string) {
-    const architectureZipPath  = await InfrastructureInstallManager.download(inPath, this.source_url)
-
-    const extractedZipFolderPath = await InfrastructureInstallManager.extractDownloadedZip(
-      inPath,
-      architectureZipPath,
-      this.source_container_folder_name
-    )
-
-    await InfrastructureInstallManager.cleanDownloadedZip(
-      architectureZipPath,
-      extractedZipFolderPath
-    )
+  afterInstallURL() {
+    return `${process.env.BASE_URL}/docs/infrastructures/aws/static-website/after-install`
   }
 
   async configureEnv(configFilePath: string, defaults: Partial<IAWSStaticWebsiteEnvVars>, hasGlobalEnv: boolean) {
     const envVars: Partial<IAWSStaticWebsiteEnvVars> = {}
 
-    envVars.scaffold_aws_profile = await awsAccountPrompt(defaults.scaffold_aws_profile)
-    envVars.scaffold_aws_region = await awsRegionPrompt(defaults.scaffold_aws_region)
+    envVars.SCAFFOLD_AWS_PROFILE = await awsAccountPrompt(defaults.SCAFFOLD_AWS_PROFILE)
+    envVars.SCAFFOLD_AWS_REGION = await awsRegionPrompt(defaults.SCAFFOLD_AWS_REGION)
 
-    if (!hasGlobalEnv || typeof defaults.domain_names !== "undefined") {
-      const rawDomain = await domainNamePrompt(defaults.domain_names?.split(",")[0])
+    if (!hasGlobalEnv || typeof defaults.DOMAIN_NAMES !== "undefined") {
+      const rawDomain = await domainNamePrompt(defaults.DOMAIN_NAMES?.split(",")[0])
 
       const parseResults = parseDomain(fromUrl(rawDomain)) as ParseResultListed
       const { domain, topLevelDomains, subDomains } = parseResults
@@ -88,102 +77,113 @@ class AWSStaticWebsite implements IInfrastructure<IAWSStaticWebsiteEnvVars> {
         domainNames = `${subDomains.join(".")}.${domain}.${topLevelDomains.join(".")}`
       }
 
-      envVars.domain_names = domainNames
+      envVars.DOMAIN_NAMES = domainNames
     }
 
     let login: IConfig|null = null
     let api: bent.RequestFunction<bent.ValidResponse>|null = null
 
     if (!hasGlobalEnv ||
-        typeof defaults.github_repo !== "undefined" ||
-        typeof defaults.github_repo_owner !== "undefined" ||
-        typeof defaults.github_branch !== "undefined" ||
-        typeof defaults.github_oauth_token !== "undefined") {
+        typeof defaults.GITHUB_REPO !== "undefined" ||
+        typeof defaults.GITHUB_REPO_OWNER !== "undefined" ||
+        typeof defaults.GITHUB_BRANCH !== "undefined" ||
+        typeof defaults.GITHUB_OAUTH_TOKEN !== "undefined") {
       login = await users.login(configFilePath)
       api = users.constructAPI(login!.auth!)
     }
 
     if (!hasGlobalEnv ||
-        typeof defaults.github_repo !== "undefined" ||
-        typeof defaults.github_repo_owner !== "undefined" ||
-        typeof defaults.github_branch !== "undefined") {
+        typeof defaults.GITHUB_REPO !== "undefined" ||
+        typeof defaults.GITHUB_REPO_OWNER !== "undefined" ||
+        typeof defaults.GITHUB_BRANCH !== "undefined") {
       const {
-        github_repo_owner: githubRepoOwner,
-        github_repo: githubRepo,
+        githubRepoOwner,
+        githubRepo,
       } = await githubRepoPrompt(
         api!,
-        defaults.github_repo_owner && defaults.github_repo ?
-          `${defaults.github_repo_owner}/${defaults.github_repo}` :
+        defaults.GITHUB_REPO_OWNER && defaults.GITHUB_REPO ?
+          `${defaults.GITHUB_REPO_OWNER}/${defaults.GITHUB_REPO}` :
           undefined
       )
 
       if (!hasGlobalEnv ||
-          typeof defaults.github_repo !== "undefined" ||
-          typeof defaults.github_repo_owner !== "undefined") {
-        envVars.github_repo_owner = githubRepoOwner
-        envVars.github_repo = githubRepo
+          typeof defaults.GITHUB_REPO !== "undefined" ||
+          typeof defaults.GITHUB_REPO_OWNER !== "undefined") {
+        envVars.GITHUB_REPO_OWNER = githubRepoOwner
+        envVars.GITHUB_REPO = githubRepo
       }
 
-      if (!hasGlobalEnv || typeof defaults.github_branch !== "undefined") {
-        envVars.github_branch = await githubBranchPrompt(
+      if (!hasGlobalEnv || typeof defaults.GITHUB_BRANCH !== "undefined") {
+        envVars.GITHUB_BRANCH = await githubBranchPrompt(
           githubRepoOwner,
           githubRepo,
           api!,
-          defaults.github_branch
+          defaults.GITHUB_BRANCH
         )
       }
     }
 
     if (!hasGlobalEnv ||
-        typeof defaults.build_command !== "undefined") {
+        typeof defaults.BUILD_COMMAND !== "undefined") {
       const {
-        build_command: buildCommand,
-        build_output_dir: buildOutputDir,
-      } = await buildCommandPrompt(defaults.build_command, defaults.build_output_dir)
+        buildCommand,
+        buildOutputDir,
+      } = await buildCommandPrompt(defaults.BUILD_COMMAND, defaults.BUILD_OUTPUT_DIR)
 
-      envVars.build_command = buildCommand
-      envVars.build_output_dir = buildOutputDir
+      envVars.BUILD_COMMAND = buildCommand
+      envVars.BUILD_OUTPUT_DIR = buildOutputDir
     }
 
-    if (!hasGlobalEnv || typeof defaults.enable_https !== "undefined") {
-      envVars.enable_https = "false"
+    if (!hasGlobalEnv || typeof defaults.ENABLE_HTTPS !== "undefined") {
+      envVars.ENABLE_HTTPS = "false"
     }
 
-    if (!hasGlobalEnv || typeof defaults.github_webhook_token !== "undefined") {
-      envVars.github_webhook_token = await generateToken()
+    if (!hasGlobalEnv || typeof defaults.GITHUB_WEBHOOK_TOKEN !== "undefined") {
+      envVars.GITHUB_WEBHOOK_TOKEN = await generateToken()
     }
 
-    if (!hasGlobalEnv || typeof defaults.github_oauth_token !== "undefined") {
-      envVars.github_oauth_token = login!.auth!.github_oauth_token
+    if (!hasGlobalEnv || typeof defaults.GITHUB_OAUTH_TOKEN !== "undefined") {
+      envVars.GITHUB_OAUTH_TOKEN = login!.auth!.githubOauthToken
     }
 
-    envVars.scaffold_resource_names_prefix = `scaffold_${(new ObjectID()).toHexString()}`
+    envVars.SCAFFOLD_RESOURCE_NAMES_PREFIX = `scaffold_${(new ObjectID()).toHexString()}`
 
     return envVars
   }
 
   globalEnvVars() {
     const values: (keyof IAWSStaticWebsiteEnvVars)[] = [
-      "github_repo",
-      "github_repo_owner",
-      "build_command",
-      "build_output_dir",
+      "GITHUB_REPO",
+      "GITHUB_REPO_OWNER",
+      "BUILD_COMMAND",
+      "BUILD_OUTPUT_DIR",
     ]
 
     return values
+  }
+
+  async install(inPath: string) {
+    const architectureZipPath  = await InfrastructureInstallManager.download(inPath, this.sourceUrl)
+
+    const extractedZipFolderPath = await InfrastructureInstallManager.extractDownloadedZip(
+      inPath,
+      architectureZipPath,
+      this.sourceContainerFolderName
+    )
+
+    await InfrastructureInstallManager.cleanDownloadedZip(
+      architectureZipPath,
+      extractedZipFolderPath
+    )
   }
 
   specificEnvVars() {
     const values: (keyof IAWSStaticWebsiteEnvVars)[] = [
-      "github_branch",
-      "domain_names",
+      "GITHUB_BRANCH",
+      "DOMAIN_NAMES",
     ]
 
     return values
-  }
-
-  afterInstallURL() {
-    return `${process.env.BASE_URL}/docs/infrastructures/aws/static-website/after-install`
   }
 }
 

@@ -16,8 +16,8 @@ const awsAccountPrompt = async (defaultAWSAccount?: string) => {
 
   const profiles = await getAWSProfiles()
 
-  const { aws_profile: awsProfile } = await inquirer.prompt<{aws_profile: string}>([{
-    name: "aws_profile",
+  const { awsProfile } = await inquirer.prompt<{awsProfile: string}>([{
+    name: "awsProfile",
     message: "AWS account:",
     type: "list",
     choices: profiles,

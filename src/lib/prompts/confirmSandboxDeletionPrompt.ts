@@ -7,16 +7,14 @@ import inquirer from "inquirer"
  * @returns A promise object representing the confirmation.
  */
 const confirmSandboxDeletionPrompt = async (environment: string) => {
-  const { confirm_sandbox_delete: confirmSandboxDelete } = await inquirer.prompt<{
-    confirm_sandbox_delete: boolean;
-  }>([{
-    name: "confirm_sandbox_delete",
+  const { confirmSandboxDeletion } = await inquirer.prompt<{confirmSandboxDeletion: boolean}>([{
+    name: "confirmSandboxDeletion",
     message: `Do you really want to remove your sandbox for the "${environment}" environment?`,
     type: "confirm",
     default: false,
   }])
 
-  return confirmSandboxDelete
+  return confirmSandboxDeletion
 }
 
 export default confirmSandboxDeletionPrompt

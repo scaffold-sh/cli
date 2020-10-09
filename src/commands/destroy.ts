@@ -15,6 +15,11 @@ import getNodeEnv from "../lib/environments/getNodeEnv"
  * used to destroy the infrastructure of an environment.
  */
 class Destroy extends BaseInfrastructureCommand {
+  static args = [{
+    name: "environment",
+    required: true,
+  }]
+
   static description = "destroy infrastructure for passed environment"
 
   static flags = {
@@ -26,11 +31,6 @@ class Destroy extends BaseInfrastructureCommand {
       default: false,
     }),
   }
-
-  static args = [{
-    name: "environment",
-    required: true,
-  }]
 
   static strict = false
 

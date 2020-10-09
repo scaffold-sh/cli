@@ -15,11 +15,18 @@ import environmentsManager from "../../lib/environments"
 import AWSS3Backend from "../../lib/backends/AWSS3Backend"
 import confirmEnvironmentDeletionPrompt from "../../lib/prompts/confirmEnvironmentDeletionPrompt"
 
+import IAWSInfrastructureEnvVars from "../../lib/infrastructures/interfaces/IAWSInfrastructureEnvVars"
+
 /**
  * Represents the "scaffold env:delete {environment}" command
  * used to delete an environment.
  */
 class EnvDelete extends BaseInfrastructureCommand {
+  static args = [{
+    name: "environment",
+    required: true,
+  }]
+
   static description = "delete passed environment"
 
   static flags = {
@@ -27,11 +34,6 @@ class EnvDelete extends BaseInfrastructureCommand {
       char: "h",
     }),
   }
-
-  static args = [{
-    name: "environment",
-    required: true,
-  }]
 
   async run() {
     const { args } = this.parse(EnvDelete)
@@ -124,21 +126,15 @@ class EnvDelete extends BaseInfrastructureCommand {
     } = environmentsManager.getPaths(infrastructurePath, environmentToDelete)
 
     if (environments.configured.includes(environmentToDelete)) {
-      const uppercasedEnvVars = dotenv.parse([
+      const envVars = dotenv.parse([
         globalEnvPath,
         specificEnvPath,
         localEnvPath,
-      ])
-
-      const envVars: any = {}
-
-      Object.keys(uppercasedEnvVars).forEach(uppercasedKey => {
-        envVars[uppercasedKey.toLowerCase()] = uppercasedEnvVars[uppercasedKey]
-      })
+      ]) as any as IAWSInfrastructureEnvVars
 
       const s3Backend = new AWSS3Backend(
-        envVars.scaffold_aws_region,
-        envVars.scaffold_aws_profile
+        envVars.SCAFFOLD_AWS_REGION,
+        envVars.SCAFFOLD_AWS_PROFILE
       )
 
       const backendEnvVars = s3Backend.generateBackendEnvVarsFromInfraEnvVars(

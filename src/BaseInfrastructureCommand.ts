@@ -14,17 +14,37 @@ import ICDKTFPackage from "./lib/infrastructures/interfaces/ICDKTFPackage"
  * @extends BaseCommand
  */
 abstract class BaseInfrastructureCommand extends BaseCommand {
-  static INFRASTRUCTURE_PACKAGE_NAME = "scaffold.json"
-
   static CDKTF_PACKAGE_NAME = "cdktf.json"
 
+  static INFRASTRUCTURE_PACKAGE_NAME = "scaffold.json"
+
   /**
-   * Returns the Terraform binary name depending on platform.
+   * Returns path to the CDKTF binary file relative to passed infrastructure path.
+   * @param infrastructurePath The path to the infrastructure.
    *
-   * @returns The Terraform binary name.
+   * @returns The path to the CDKTF binary file.
    */
-  static terraformBinaryName() {
-    return process.platform === "win32" ? "terraform.exe" : "terraform"
+  cdktfPath(infrastructurePath: string) {
+    return resolve(infrastructurePath, "node_modules", ".bin", "cdktf")
+  }
+
+  /**
+   * Returns the Scaffold package JSON file content for passed infrastructure.
+   * @param infrastructurePath The path to the infrastructure.
+   *
+   * @returns The Scaffold package JSON file content or "null" if not found.
+   */
+  async infrastructurePackage(infrastructurePath: string): Promise<IInfrastructurePackage|null> {
+    try {
+      const infrastructurePackage: IInfrastructurePackage = await readJSON(join(
+        infrastructurePath,
+        BaseInfrastructureCommand.INFRASTRUCTURE_PACKAGE_NAME
+      ))
+
+      return infrastructurePackage
+    } catch (error) {
+      return null
+    }
   }
 
   /**
@@ -45,27 +65,12 @@ abstract class BaseInfrastructureCommand extends BaseCommand {
   }
 
   /**
-   * Returns path to the CDKTF binary file relative to passed infrastructure path.
-   * @param infrastructurePath The path to the infrastructure.
+   * Returns the Terraform binary name depending on platform.
    *
-   * @returns The path to the CDKTF binary file.
+   * @returns The Terraform binary name.
    */
-  cdktfPath(infrastructurePath: string) {
-    return resolve(infrastructurePath, "node_modules", ".bin", "cdktf")
-  }
-
-  /**
-   * Returns path to the Terraform working directory relative to passed infrastructure path.
-   * @param infrastructurePath The path to the infrastructure.
-   *
-   * @returns Promise representing the path to the Terraform working directory.
-   */
-  async terraformPlanPath(infrastructurePath: string) {
-    const cdktf: ICDKTFPackage = await readJSON(
-      join(infrastructurePath, BaseInfrastructureCommand.CDKTF_PACKAGE_NAME)
-    )
-
-    return resolve(infrastructurePath, cdktf.output || "out")
+  static terraformBinaryName() {
+    return process.platform === "win32" ? "terraform.exe" : "terraform"
   }
 
   /**
@@ -81,22 +86,17 @@ abstract class BaseInfrastructureCommand extends BaseCommand {
   }
 
   /**
-   * Returns the Scaffold package JSON file content for passed infrastructure.
+   * Returns path to the Terraform working directory relative to passed infrastructure path.
    * @param infrastructurePath The path to the infrastructure.
    *
-   * @returns The Scaffold package JSON file content or "null" if not found.
+   * @returns Promise representing the path to the Terraform working directory.
    */
-  async infrastructurePackage(infrastructurePath: string): Promise<IInfrastructurePackage|null> {
-    try {
-      const infrastructurePackage: IInfrastructurePackage = await readJSON(join(
-        infrastructurePath,
-        BaseInfrastructureCommand.INFRASTRUCTURE_PACKAGE_NAME
-      ))
+  async terraformPlanPath(infrastructurePath: string) {
+    const cdktf: ICDKTFPackage = await readJSON(
+      join(infrastructurePath, BaseInfrastructureCommand.CDKTF_PACKAGE_NAME)
+    )
 
-      return infrastructurePackage
-    } catch (error) {
-      return null
-    }
+    return resolve(infrastructurePath, cdktf.output || "out")
   }
 }
 

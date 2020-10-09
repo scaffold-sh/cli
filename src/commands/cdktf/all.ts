@@ -9,16 +9,6 @@ import InfrastructureFactory from "../../lib/infrastructures/InfrastructureFacto
  * used to forward commands to the CDKTF binary.
  */
 class CdktfAll extends BaseInfrastructureCommand {
-  static description = "forward commands to the CDKTF binary"
-
-  static flags = {
-    help: flags.help({
-      char: "h",
-    }),
-  }
-
-  static args = []
-
   static aliases = [
     "deploy",
     "destroy",
@@ -28,6 +18,16 @@ class CdktfAll extends BaseInfrastructureCommand {
     "login",
     "synth",
   ].map(alias => `cdktf:${alias}`)
+
+  static args = []
+
+  static description = "forward commands to the CDKTF binary"
+
+  static flags = {
+    help: flags.help({
+      char: "h",
+    }),
+  }
 
   async run() {
     await this.ensureAllRequirements()

@@ -30,13 +30,12 @@ abstract class BaseCommand extends Command {
   }
 
   /**
-   * Ensures all requirements are met to run the CLI.
+   * Returns path to the binaries folder.
    *
-   * @returns Empty promise object.
+   * @returns The path to the binaries folder.
    */
-  async ensureAllRequirements() {
-    await this.ensureAWSCLI()
-    this.ensureNodeVersion()
+  static binariesFolderPath() {
+    return resolve(__dirname, "..", "bin")
   }
 
   /**
@@ -59,6 +58,16 @@ abstract class BaseCommand extends Command {
   }
 
   /**
+   * Ensures all requirements are met to run the CLI.
+   *
+   * @returns Empty promise object.
+   */
+  async ensureAllRequirements() {
+    await this.ensureAWSCLI()
+    this.ensureNodeVersion()
+  }
+
+  /**
    * Ensures the Node version match requirements.
    *
    * @returns Nothing.
@@ -67,15 +76,6 @@ abstract class BaseCommand extends Command {
     if (semver.lt(process.version, "12.16.0")) {
       ux.error("Needs at least Node v12.16 to run.")
     }
-  }
-
-  /**
-   * Returns path to the binaries folder.
-   *
-   * @returns The path to the binaries folder.
-   */
-  static binariesFolderPath() {
-    return resolve(__dirname, "..", "bin")
   }
 }
 

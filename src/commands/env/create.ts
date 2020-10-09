@@ -11,6 +11,11 @@ import environmentNameValidator from "../../lib/environments/validators/environm
  * used to create an environment.
  */
 class EnvCreate extends BaseInfrastructureCommand {
+  static args = [{
+    name: "environment_name",
+    required: false,
+  }]
+
   static description = "create environment"
 
   static flags = {
@@ -18,11 +23,6 @@ class EnvCreate extends BaseInfrastructureCommand {
       char: "h",
     }),
   }
-
-  static args = [{
-    name: "environment_name",
-    required: false,
-  }]
 
   async run() {
     const { args } = this.parse(EnvCreate)

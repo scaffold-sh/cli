@@ -11,6 +11,8 @@ import environmentsManager from "../../lib/environments"
  * used to list the created environments.
  */
 class EnvList extends BaseInfrastructureCommand {
+  static args = []
+
   static description = "list environments"
 
   static flags = {
@@ -18,8 +20,6 @@ class EnvList extends BaseInfrastructureCommand {
       char: "h",
     }),
   }
-
-  static args = []
 
   async run() {
     await this.ensureAllRequirements()
