@@ -28,7 +28,7 @@ import IConfig from "../../config/interfaces/IConfig"
  * @property DOMAIN_NAMES The domain name(s) used for the website.
  * @property ENABLE_HTTPS The ACM certificate needs to be "issued" before enabling HTTPS.
  * @property GITHUB_BRANCH The branch from which this website will be deployed.
- * @property GITHUB_OAUTH_TOKEN The GitHub Oauth token that will be used by CodePipeline to pull website source code from repository.
+ * @property GITHUB_OAUTH_TOKEN The GitHub OAuth token that will be used by CodePipeline to pull website source code from repository.
  * @property GITHUB_REPO The GitHub repository that contains the website source code.
  * @property GITHUB_REPO_OWNER The owner of the GitHub repository.
  * @property GITHUB_WEBHOOK_TOKEN A random token that will be used by CodePipeline and GitHub to prevent impersonation.
