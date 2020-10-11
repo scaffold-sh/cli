@@ -131,7 +131,7 @@ class AWSStaticWebsite implements IInfrastructure<IAWSStaticWebsiteEnvVars> {
       } = await buildCommandPrompt(defaults.BUILD_COMMAND, defaults.BUILD_OUTPUT_DIR)
 
       envVars.BUILD_COMMAND = buildCommand
-      envVars.BUILD_OUTPUT_DIR = buildOutputDir
+      envVars.BUILD_OUTPUT_DIR = buildOutputDir || ""
     }
 
     if (!hasGlobalEnv || typeof defaults.ENABLE_HTTPS !== "undefined") {
