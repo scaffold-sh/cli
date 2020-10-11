@@ -32,7 +32,7 @@ import dockerContainerListenPort from "../../prompts/dockerContainerListenPort"
  * @property FARGATE_TASKS_CPU The CPU used by the Fargate tasks.
  * @property FARGATE_TASKS_MEMORY The memory used by the Fargate tasks.
  * @property GITHUB_BRANCH The branch from which CodePipeline will deploy.
- * @property GITHUB_OAUTH_TOKEN The GitHub Oauth token that will be used by CodePipeline to pull website source code from repository.
+ * @property GITHUB_OAUTH_TOKEN The GitHub OAuth token that will be used by CodePipeline to pull website source code from repository.
  * @property GITHUB_REPO The GitHub repository that contains the source code.
  * @property GITHUB_REPO_OWNER The owner of the GitHub repository.
  * @property GITHUB_WEBHOOK_TOKEN A random token that will be used by CodePipeline and GitHub to prevent impersonation.

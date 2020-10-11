@@ -14,7 +14,7 @@ const buildCommandPrompt = async (defaultBuildCommand?: string, defaultBuildOutp
   ux.log(chalk.bold(`\n› Set a build command ${chalk.yellowBright("(optional)")}`))
   ux.log(chalk.hex("#bbb")("  Do your website needs to be build (e.g. npm i && npm run build)?"))
 
-  const { buildCommand, buildOutputDir } = await inquirer.prompt<{buildCommand: string|undefined;buildOutputDir: string|undefined}>([{
+  const { buildCommand, buildOutputDir } = await inquirer.prompt<{buildCommand: string;buildOutputDir: string|undefined}>([{
     name: "buildCommand",
     message: "Build command:",
     type: "input",
